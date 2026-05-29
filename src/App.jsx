@@ -8,6 +8,7 @@ import DestinationSelectionPage from './pages/DestinationSelectionPage/Destinati
 import RoutePreviewPage from './pages/RoutePreviewPage/RoutePreviewPage';
 import LiveNavigationPage from './pages/LiveNavigationPage/LiveNavigationPage';
 import DestinationReachedPage from './pages/DestinationReachedPage/DestinationReachedPage';
+import CampusMap from './components/CampusMap/CampusMap';
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
         <Route path="/" element={<LandingWelcomePage />} />
         <Route path="/source" element={<SourceSelectionPage />} />
         <Route path="/destination" element={<DestinationSelectionPage />} />
-        <Route path="/preview" element={<RoutePreviewPage />} />
+        <Route path="/preview" element={<CampusMap />} />
         <Route path="/navigate" element={<LiveNavigationPage />} />
         <Route path="/reached" element={<DestinationReachedPage />} />
       </Routes>

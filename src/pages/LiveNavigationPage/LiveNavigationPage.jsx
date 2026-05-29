@@ -8,6 +8,7 @@ import {
 import './LiveNavigationPage.css';
 import NavigationConfirmationPopup from '../../components/popups/NavigationConfirmationPopup';
 import InteractiveCampusMap from '../../components/map/InteractiveCampusMap';
+import { landmarks } from '../../components/CampusMap/campusData';
 
 /* ── Route steps ── */
 const STEPS = [
@@ -31,8 +32,6 @@ const CHECKPOINTS = [
   { id: 3, triggerAt: 82,   title: 'Checkpoint 3 of 3', question: 'Did you take the staircase to the 2nd Floor?',        detail: 'Staircase → 2nd Floor, CSE Block' },
 ];
 
-
-
 /* ── Main Component ── */
 export default function LiveNavigationPage() {
   const navigate = useNavigate();
@@ -48,8 +47,27 @@ export default function LiveNavigationPage() {
   const [isPaused,        setIsPaused]        = useState(false);
   const [showRecalcPopup, setShowRecalcPopup] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
+  
+  const [source, setSource] = useState(null);
+  const [destination, setDestination] = useState(null);
+  
   const timerRef    = useRef(null);
   const triggeredRef= useRef(new Set());
+
+  // Load source and destination from localStorage
+  useEffect(() => {
+    const savedSource = localStorage.getItem('wayfinder-source');
+    const savedDest = localStorage.getItem('wayfinder-destination');
+    
+    if (savedSource) {
+      const s = landmarks.find(l => l.name === savedSource);
+      if (s) setSource(s);
+    }
+    if (savedDest) {
+      const d = landmarks.find(l => l.name === savedDest);
+      if (d) setDestination(d);
+    }
+  }, []);
 
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
@@ -209,7 +227,7 @@ export default function LiveNavigationPage() {
 
         {/* Map */}
         <motion.div initial={{ opacity:0, scale:.96 }} animate={{ opacity:1, scale:1 }} transition={{ duration:.5, delay:.12 }}>
-          <InteractiveCampusMap theme={theme} progress={progress} />
+          <InteractiveCampusMap theme={theme} progress={progress} source={source} destination={destination} />
         </motion.div>
 
         {/* Instruction card */}
