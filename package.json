@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.2.3",
+    "antd": "^6.4.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.40.0",
     "lottie-react": "^2.4.1",

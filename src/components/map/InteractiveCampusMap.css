@@ -1,0 +1,189 @@
+/* ── InteractiveCampusMap.css ── */
+
+.icm-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+}
+
+.icm-card {
+  width: 100%;
+  border-radius: 1.25rem;
+  background: #0d1b2a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.icm-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: cursor 0.2s;
+}
+
+.icm-svg.inspector-mode {
+  cursor: crosshair;
+}
+
+.icm-bg-image {
+  /* No specific styling required, image fills viewBox via properties */
+}
+
+/* Animated Route Path */
+.icm-route-glow {
+  stroke: rgba(59, 130, 246, 0.4);
+  filter: blur(4px);
+}
+.icm-route-path {
+  stroke: #3b82f6;
+  stroke-dasharray: 8 6;
+  animation: route-stream 25s linear infinite;
+}
+@keyframes route-stream {
+  to {
+    stroke-dashoffset: -500;
+  }
+}
+
+/* Marker pulses */
+.icm-marker-pulse {
+  animation: marker-pulse-anim 2s infinite ease-out;
+  transform-origin: center;
+}
+@keyframes marker-pulse-anim {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.icm-user-pulse {
+  animation: user-pulse-anim 1.8s infinite ease-out;
+  transform-origin: center;
+}
+@keyframes user-pulse-anim {
+  0% { transform: scale(0.7); opacity: 0.9; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* ── Inspector Tooltip ── */
+.icm-inspector-tooltip {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-family: monospace;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 20;
+}
+.icm-inspector-tooltip strong {
+  color: #f8fafc;
+}
+
+/* ── Legend ── */
+.icm-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: rgba(15, 23, 42, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.icm-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.icm-legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.icm-legend-dot.green { background: #22c55e; }
+.icm-legend-dot.blue-pulse {
+  background: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  animation: legend-pulse 1.5s infinite alternate;
+}
+.icm-legend-dot.red { background: #ef4444; }
+
+@keyframes legend-pulse {
+  0% { box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2); }
+  100% { box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.5); }
+}
+
+/* ── Dev Toggle ── */
+.icm-inspector-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #94a3b8;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  margin-left: auto;
+  transition: all 0.2s;
+}
+.icm-inspector-toggle:hover {
+  background: rgba(255,255,255,0.1);
+  color: #e2e8f0;
+}
+.icm-inspector-toggle.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+/* ── Light Mode Override ── */
+.icm-wrapper[data-theme="light"] .icm-card {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.icm-wrapper[data-theme="light"] .icm-legend {
+  background: rgba(248, 250, 252, 0.9);
+  border-top-color: rgba(0, 0, 0, 0.06);
+  color: #64748b;
+}
+
+.icm-wrapper[data-theme="light"] .icm-inspector-toggle {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: #475569;
+}
+.icm-wrapper[data-theme="light"] .icm-inspector-toggle:hover {
+  background: rgba(0,0,0,0.08);
+}
+.icm-wrapper[data-theme="light"] .icm-inspector-toggle.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #d97706;
+}

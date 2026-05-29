@@ -1,0 +1,191 @@
+/* NavigationConfirmationPopup.css */
+
+.ncp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* ── Bottom sheet ── */
+.ncp-sheet {
+  width: 100%;
+  max-width: 520px;
+  background: #0d1b2a;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.75rem 1.75rem 0 0;
+  padding: 0 1.25rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glow accent top-left */
+.ncp-sheet::before {
+  content: '';
+  position: absolute;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(22,163,74,0.25), transparent 70%);
+  top: -80px; left: -60px;
+  pointer-events: none;
+}
+
+/* Drag handle */
+.ncp-handle-wrap {
+  display: flex;
+  justify-content: center;
+  padding: .85rem 0 .5rem;
+}
+.ncp-handle {
+  width: 2.5rem;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 99px;
+}
+
+/* ── Header ── */
+.ncp-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  margin-top: .35rem;
+}
+.ncp-icon-wrap {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+.ncp-icon-wrap.green {
+  background: rgba(22, 163, 74, 0.15);
+  border: 1px solid rgba(22, 163, 74, 0.3);
+  color: #4ade80;
+}
+.ncp-icon-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 1.2rem;
+  border: 1.5px solid rgba(74, 222, 128, 0.35);
+  animation: ncp-pulse-ring 2s ease-in-out infinite;
+}
+@keyframes ncp-pulse-ring {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0; transform: scale(1.12); }
+}
+.ncp-title { font-size: 1.1rem; font-weight: 800; color: #f0f6ff; line-height: 1.25; margin-bottom: .3rem; }
+.ncp-sub   { font-size: .82rem; color: #64748b; line-height: 1.55; }
+
+/* ── Floor pill ── */
+.ncp-floor-row {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 1rem;
+  padding: .8rem 1rem;
+  margin-bottom: 1.25rem;
+}
+.ncp-floor-icon {
+  width: 2.2rem; height: 2.2rem;
+  border-radius: .6rem;
+  background: rgba(234,88,12,.12);
+  border: 1px solid rgba(234,88,12,.25);
+  display: flex; align-items: center; justify-content: center;
+  color: #fb923c;
+  flex-shrink: 0;
+}
+.ncp-floor-label { font-size: .7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+.ncp-floor-val   { font-size: .92rem; font-weight: 800; color: #f0f6ff; margin-top: .1rem; }
+
+/* ── Buttons ── */
+.ncp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+}
+.ncp-btn {
+  width: 100%;
+  height: 3.1rem;
+  border-radius: .9rem;
+  font-size: .92rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  cursor: pointer;
+  transition: all .18s ease;
+  border: none;
+}
+.ncp-btn-confirm {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.4);
+}
+.ncp-btn-confirm:hover {
+  box-shadow: 0 6px 28px rgba(22, 163, 74, 0.55);
+  transform: translateY(-1px);
+}
+.ncp-btn-confirm:active { transform: translateY(0); }
+
+.ncp-btn-recalc {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  color: #f87171;
+}
+.ncp-btn-recalc:hover {
+  background: rgba(239,68,68,.18);
+  border-color: rgba(239,68,68,.5);
+}
+
+.ncp-btn-dismiss {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.08);
+  color: #475569;
+  font-size: .82rem;
+  height: 2.5rem;
+}
+.ncp-btn-dismiss:hover { background: rgba(255,255,255,.04); color: #94a3b8; }
+
+/* ── Confetti dots (decorative) ── */
+.ncp-confetti-dot {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: ncp-float 3s ease-in-out infinite;
+}
+@keyframes ncp-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: .7; }
+  50%       { transform: translateY(-14px) rotate(180deg); opacity: .3; }
+}
+
+/* ── Checkpoint Progress Pips ── */
+.ncp-cp-progress {
+  display: flex;
+  gap: .35rem;
+  margin-bottom: 1.25rem;
+  margin-top: .25rem;
+  width: 100%;
+}
+.ncp-cp-pip {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 99px;
+  transition: all .3s ease;
+}
+.ncp-cp-pip.active {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
