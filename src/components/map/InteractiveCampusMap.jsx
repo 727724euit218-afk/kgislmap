@@ -177,10 +177,7 @@ export default function InteractiveCampusMap({ theme = 'light', progress = 0, sh
 
         {/* Legend */}
         <div className="icm-legend">
-          <div className="icm-legend-item">
-            <span className="icm-legend-dot green"></span>
-            <span>Entrance</span>
-          </div>
+
           <div className="icm-legend-item">
             <span className="icm-legend-dot blue-pulse"></span>
             <span>Your Position</span>
@@ -189,16 +186,6 @@ export default function InteractiveCampusMap({ theme = 'light', progress = 0, sh
             <span className="icm-legend-dot red"></span>
             <span>Destination</span>
           </div>
-          
-          {/* Dev Toggle */}
-          <button 
-            className={`icm-inspector-toggle ${isInspectorMode ? 'active' : ''}`}
-            onClick={() => setIsInspectorMode(!isInspectorMode)}
-            title="Toggle coordinate inspector"
-          >
-            <Crosshair size={14} />
-            <span>Dev Mode</span>
-          </button>
         </div>
       </div>
     </div>

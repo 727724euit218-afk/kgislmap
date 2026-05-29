@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle2, MapPin, Navigation, Clock,
-  Footprints, Home, ChevronRight, Award
+  Footprints, Home, ChevronRight, Award, Check
 } from 'lucide-react';
 import './DestinationReachedPage.css';
 
@@ -134,7 +134,7 @@ export default function DestinationReachedPage() {
         {/* Sub-text */}
         <motion.p className="drp-sub" {...fadeUp(0.35)}>
           You have successfully reached your destination.
-          Great navigation! 🎉
+          Great navigation! <Check size={16} className="drp-emoji-icon" />
         </motion.p>
 
         {/* Route pill */}
@@ -184,10 +184,13 @@ export default function DestinationReachedPage() {
             }}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: .97 }}
+            style={{ position: 'relative' }}
           >
-            <Navigation size={16} />
-            Navigate Again
-            <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+              <Navigation size={16} />
+              Navigate Again
+            </div>
+            <ChevronRight size={16} style={{ position: 'absolute', right: '1.2rem' }} />
           </motion.button>
 
           <motion.button

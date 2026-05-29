@@ -92,9 +92,6 @@
 .rp-step.is-active p { display: block; color: var(--ink); }
 .rp-step-line { flex: 1; height: 2px; background: #e2e8f0; margin: 0 .4rem; border-radius: 1px; }
 .rp-step-line.is-done { background: var(--green-500); }
-@media (min-width: 400px) {
-    .rp-step p { display: block; }
-}
 
 /* ── Title ── */
 .rp-title-block h1 { font-size: 1.5rem; font-weight: 800; color: var(--ink); margin-bottom: .2rem; }
@@ -119,6 +116,12 @@
 }
 .rp-loc-icon.source { background: #dcfce7; color: var(--green-600); }
 .rp-loc-icon.dest { background: #dbeafe; color: #3b82f6; }
+.rp-loc-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
 .rp-loc-label { font-size: .65rem; color: var(--ink-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
 .rp-loc-name { font-size: .9rem; font-weight: 700; color: var(--ink); line-height: 1.2; }
 .rp-loc-meta { font-size: .7rem; color: var(--ink-muted); }
@@ -127,8 +130,11 @@
 /* ── Metrics ── */
 .rp-metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: .5rem;
+}
+@media (min-width: 400px) {
+  .rp-metrics { grid-template-columns: repeat(4, 1fr); }
 }
 .rp-metric {
   background: #fff;
@@ -164,7 +170,7 @@
   border: 1px solid var(--border);
   overflow: hidden;
   position: relative;
-  aspect-ratio: 4 / 3;
+  min-height: 24rem;
 }
 .rp-map-placeholder {
   width: 100%; height: 100%;

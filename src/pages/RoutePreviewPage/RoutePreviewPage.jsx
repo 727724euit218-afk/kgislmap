@@ -39,7 +39,7 @@ function ProgressSteps() {
         <React.Fragment key={step}>
           <div className={`rp-step ${index < 2 ? 'is-completed' : ''} ${index === 2 ? 'is-active' : ''}`}>
             <span>
-              {index < 2 ? <Check size={10} strokeWidth={3} /> : index + 1}
+              {index + 1}
             </span>
             <p>{step}</p>
           </div>
@@ -188,32 +188,7 @@ export default function RoutePreviewPage() {
           </div>
         </motion.div>
 
-        {/* Navigation Type */}
-        <motion.div className="rp-section" variants={fadeUp} custom={6} initial="hidden" animate="visible">
-          <div className="rp-section-header">
-            <h3>Navigation Type</h3>
-          </div>
-          <div className="rp-nav-types">
-            <label className={`rp-type-card ${navType === 'staircase' ? 'is-active' : ''}`}>
-              <input type="radio" name="navType" value="staircase" checked={navType === 'staircase'} onChange={() => setNavType('staircase')} />
-              <div className="rp-type-icon orange"><ArrowUpDown size={20} /></div>
-              <div className="rp-type-info">
-                <h4>Staircase Route</h4>
-                <span>5 min • 350 m</span>
-              </div>
-              <div className="rp-radio-circle"></div>
-            </label>
-            <label className={`rp-type-card ${navType === 'lift' ? 'is-active' : ''}`}>
-              <input type="radio" name="navType" value="lift" checked={navType === 'lift'} onChange={() => setNavType('lift')} />
-              <div className="rp-type-icon blue"><Building2 size={20} /></div>
-              <div className="rp-type-info">
-                <h4>Lift Route</h4>
-                <span>6 min • 370 m</span>
-              </div>
-              <div className="rp-radio-circle"></div>
-            </label>
-          </div>
-        </motion.div>
+
 
         {/* Bottom Actions */}
         <motion.div className="rp-actions" variants={fadeUp} custom={7} initial="hidden" animate="visible">

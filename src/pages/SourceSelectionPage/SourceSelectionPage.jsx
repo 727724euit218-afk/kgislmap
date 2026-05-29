@@ -47,7 +47,7 @@ const recent = [
 ];
 
 function ProgressSteps() {
-  const steps = ['Source', 'Destination', 'Navigate', 'Arrived'];
+  const steps = ['Source', 'Destination', 'Preview', 'Navigate', 'Arrived'];
 
   return (
     <motion.div className="src-progress" variants={fadeUp} custom={0} initial="hidden" animate="visible">
@@ -66,76 +66,61 @@ function ProgressSteps() {
 
 function CampusMap({ selectedName, onSelectSource }) {
   return (
-    <div className="src-map-card">
-      <div className="src-map-head">
-        <span className="src-map-head-icon"><MapPin size={13} /></span>
-        <div>
-          <strong>Select Source on Map</strong>
-          <p>Tap a campus marker</p>
-        </div>
-      </div>
+    <div className="src-map-scene" style={{ height: '100%', minHeight: '14rem' }} aria-label={`Map preview with ${selectedName} selected`}>
+      <motion.div
+        className="src-map-grid"
+        animate={{ backgroundPosition: ['0px 0px', '22px 22px'] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+      />
 
-      <div className="src-map-scene" aria-label={`Map preview with ${selectedName} selected`}>
+      {[0, 1, 2, 3, 4].map((index) => (
         <motion.div
-          className="src-map-grid"
-          animate={{ backgroundPosition: ['0px 0px', '22px 22px'] }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-        />
-
-        {[0, 1, 2, 3, 4].map((index) => (
-          <motion.div
-            key={index}
-            className={`src-building src-building-${index + 1}`}
-            initial={{ opacity: 0, y: 18, rotate: -45 }}
-            animate={{ opacity: 1, y: 0, rotate: -45 }}
-            transition={{ delay: 0.15 + index * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <span />
-          </motion.div>
-        ))}
-
-        <motion.div
-          className="src-route-line"
-          initial={{ scaleX: 0, rotate: -18 }}
-          animate={{ scaleX: 1, rotate: -18 }}
-          transition={{ duration: .75, delay: .45, ease: [0.22, 1, 0.36, 1] }}
-        />
-
-        <motion.button
-          type="button"
-          className="src-map-pin src-map-pin-a"
-          aria-label="Select main entrance"
-          animate={{ y: [0, -5, 0] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-          onClick={() => onSelectSource('entrance')}
-        >
-          <MapPin size={18} />
-        </motion.button>
-
-        <motion.button
-          type="button"
-          className="src-map-pin src-map-pin-b"
-          aria-label="Select auditorium"
-          animate={{ y: [0, -4, 0] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
-          onClick={() => onSelectSource('auditorium')}
-        >
-          <MapPin size={18} />
-        </motion.button>
-
-        <motion.div
-          className="src-user-dot"
-          animate={{ scale: [1, 1.12, 1] }}
-          transition={{ duration: 1.7, repeat: Infinity, ease: 'easeInOut' }}
+          key={index}
+          className={`src-building src-building-${index + 1}`}
+          initial={{ opacity: 0, y: 18, rotate: -45 }}
+          animate={{ opacity: 1, y: 0, rotate: -45 }}
+          transition={{ delay: 0.15 + index * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           <span />
         </motion.div>
-      </div>
+      ))}
 
-      <div className="src-map-action">
-        <Check size={14} />
-        <span>Use Selected Location</span>
-      </div>
+      <motion.div
+        className="src-route-line"
+        initial={{ scaleX: 0, rotate: -18 }}
+        animate={{ scaleX: 1, rotate: -18 }}
+        transition={{ duration: .75, delay: .45, ease: [0.22, 1, 0.36, 1] }}
+      />
+
+      <motion.button
+        type="button"
+        className="src-map-pin src-map-pin-a"
+        aria-label="Select main entrance"
+        animate={{ y: [0, -5, 0] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+        onClick={() => onSelectSource('entrance')}
+      >
+        <MapPin size={18} />
+      </motion.button>
+
+      <motion.button
+        type="button"
+        className="src-map-pin src-map-pin-b"
+        aria-label="Select auditorium"
+        animate={{ y: [0, -4, 0] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+        onClick={() => onSelectSource('auditorium')}
+      >
+        <MapPin size={18} />
+      </motion.button>
+
+      <motion.div
+        className="src-user-dot"
+        animate={{ scale: [1, 1.12, 1] }}
+        transition={{ duration: 1.7, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <span />
+      </motion.div>
     </div>
   );
 }
@@ -349,7 +334,17 @@ function SourceSelectionPage() {
           </div>
         </motion.section>
 
-        <motion.div className="src-actions" variants={fadeUp} custom={6} initial="hidden" animate="visible">
+        <motion.div className="src-selection-summary" variants={fadeUp} custom={6} initial="hidden" animate="visible" style={{ marginTop: '1rem', padding: '0.75rem', borderRadius: '0.85rem', background: 'var(--src-green-soft)', border: '1px solid rgba(22, 163, 74, 0.18)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'var(--src-green)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <MapPin size={16} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '0.65rem', color: 'var(--src-green)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selected Source</div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--src-ink)', fontWeight: 850 }}>{selectedSource.name}</div>
+          </div>
+        </motion.div>
+
+        <motion.div className="src-actions" variants={fadeUp} custom={7} initial="hidden" animate="visible" style={{ marginTop: '0.75rem' }}>
           <button className="src-back-btn" type="button" onClick={() => navigate('/')}>
             <ArrowLeft size={16} />
             Back

@@ -61,7 +61,7 @@ const categories = [
 
 /* ── Progress Steps Component ───────────────────────────── */
 function ProgressSteps() {
-  const steps = ['Source', 'Destination', 'Navigate', 'Arrived'];
+  const steps = ['Source', 'Destination', 'Preview', 'Navigate', 'Arrived'];
 
   return (
     <motion.div className="dst-progress" variants={fadeUp} custom={0} initial="hidden" animate="visible">
