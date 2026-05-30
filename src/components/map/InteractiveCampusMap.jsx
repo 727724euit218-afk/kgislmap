@@ -4,7 +4,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import './InteractiveCampusMap.css';
 import campusMapImg from '../../assets/campus_map.jpg';
 import { getNearestNode, findShortestPath } from '../../hooks/useCampusRoute';
-import { roadNodes, landmarks } from '../CampusMap/campusData';
+import { landmarks } from '../CampusMap/campusData';
 
 // Coordinate system: positions in campusData are direct SVG [x, y] pixels.
 // viewBox is "0 0 855 1079" matching the campus map image dimensions.
@@ -62,23 +62,26 @@ export default function InteractiveCampusMap({
   const [calibrationPoints, setCalibrationPoints] = useState([]);
   const [isInspectorMode, setIsInspectorMode] = useState(false);
 
-  // Compute dynamic route points based on source and destination
+  // Build landmark lookup map once
+  const lmMap = useMemo(() => {
+    const m = {};
+    for (const lm of landmarks) m[lm.id] = lm;
+    return m;
+  }, []);
+
+  // Compute route points: findShortestPath now returns landmark IDs directly
   const routePoints = useMemo(() => {
     if (!source || !destination) return [];
-    const startNode = getNearestNode(source.position);
-    const endNode   = getNearestNode(destination.position);
-    if (!startNode || !endNode) return [];
-
-    const pathIds = findShortestPath(startNode.id, endNode.id);
-    return [
-      mapToSvg(source.position),
-      ...pathIds.map(id => {
-        const node = roadNodes.find(n => n.id === id);
-        return mapToSvg(node.position);
-      }),
-      mapToSvg(destination.position),
-    ];
-  }, [source, destination]);
+    const pathIds = findShortestPath(source.id, destination.id);
+    if (!pathIds || pathIds.length < 2) {
+      // Fallback: straight line between source and destination
+      return [mapToSvg(source.position), mapToSvg(destination.position)];
+    }
+    return pathIds
+      .map(id => lmMap[id])
+      .filter(Boolean)
+      .map(lm => mapToSvg(lm.position));
+  }, [source, destination, lmMap]);
 
   const userPos = useMemo(
     () => getPositionAtProgress(routePoints, progress),

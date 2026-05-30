@@ -20,8 +20,8 @@ import {
 } from 'lucide-react';
 import './RoutePreviewPage.css';
 import InteractiveCampusMap from '../../components/map/InteractiveCampusMap';
-import { landmarks, roadEdges } from '../../components/CampusMap/campusData';
-import { getNearestNode, findShortestPath } from '../../hooks/useCampusRoute';
+import { landmarks } from '../../components/CampusMap/campusData';
+import { getNamedRouteSteps } from '../../hooks/useCampusRoute';
 
 /* ── Animation variants ─────────────────────────────────── */
 const fadeUp = {
@@ -89,94 +89,58 @@ export default function RoutePreviewPage() {
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  // Calculate dynamic route metrics based on coordinates graph
-  const routeDistance = useMemo(() => {
-    if (!source || !destination) return 350;
-    const startNode = getNearestNode(source.position);
-    const endNode = getNearestNode(destination.position);
-    if (!startNode || !endNode) return 350;
-    const pathIds = findShortestPath(startNode.id, endNode.id);
-    if (!pathIds || pathIds.length < 2) return 350;
-
-    let totalDist = 0;
-    for (let i = 0; i < pathIds.length - 1; i++) {
-      const fromNode = pathIds[i];
-      const toNode = pathIds[i+1];
-      const edge = roadEdges.find(e => (e.from === fromNode && e.to === toNode) || (e.from === toNode && e.to === fromNode));
-      if (edge) {
-        totalDist += edge.distance;
-      }
-    }
-    return totalDist || 350;
+  // ── Compute named route using landmark graph ─────────────────────────────
+  const namedRoute = useMemo(() => {
+    if (!source || !destination) return null;
+    return getNamedRouteSteps(source.id, destination.id);
   }, [source, destination]);
 
+  const routeDistance = useMemo(() => {
+    return namedRoute?.totalDistance ?? 350;
+  }, [namedRoute]);
+
   const estimatedTimeVal = useMemo(() => {
-    const min = Math.ceil(routeDistance / 70);
+    const min = Math.ceil(routeDistance / 70); // ~70 m/min walking pace
     return min > 0 ? min : 5;
   }, [routeDistance]);
 
   const floorsToCross = useMemo(() => {
-    // Standard target for Kite block/Nursing is multi-level
-    if (destination?.name.toLowerCase().includes('lab') || destination?.name.toLowerCase().includes('kite')) {
-      return 2;
-    }
-    if (destination?.name.toLowerCase().includes('hostel') || destination?.name.toLowerCase().includes('college')) {
-      return 1;
-    }
+    if (destination?.name.toLowerCase().includes('lab') || destination?.name.toLowerCase().includes('kite')) return 2;
+    if (destination?.name.toLowerCase().includes('hostel') || destination?.name.toLowerCase().includes('college')) return 1;
     return 0;
   }, [destination]);
 
-  // Generate dynamic directions or fallback to screenshot details for Admin Block route
+  // ── Build named step-by-step route details ───────────────────────────────
   const routeDetails = useMemo(() => {
-    if (source?.id === 1 && (destination?.id === 5 || destination?.id === 6)) {
+    const start = source?.name || 'Main Entrance Gate';
+    const end   = destination?.name || 'Destination';
+
+    if (!namedRoute || namedRoute.steps.length === 0) {
       return [
-        { text: 'Go straight from Main Entrance Gate', dist: '120 m', icon: ArrowUp, colorClass: 'green' },
-        { text: 'Turn right near the Admin Block', dist: '80 m', icon: CornerUpRight, colorClass: 'green' },
-        { text: 'Take the staircase to 2nd floor', dist: '1 floor', icon: ArrowUpDown, colorClass: 'orange' },
-        { text: `You will reach ${destination.name}`, dist: '150 m', icon: MapPin, colorClass: 'blue' }
+        { text: `Start at ${start}`, dist: '0 m', icon: ArrowUp, colorClass: 'green' },
+        { text: `Head toward ${end}`, dist: `${routeDistance} m`, icon: CornerUpRight, colorClass: 'green' },
+        { text: `Arrive at ${end}`, dist: `${routeDistance} m total`, icon: MapPin, colorClass: 'blue' },
       ];
     }
 
-    const steps = [];
-    steps.push({
-      text: `Start at ${source ? source.name : 'Main Entrance Gate'}`,
-      dist: '0 m',
-      icon: ArrowUp,
-      colorClass: 'green'
-    });
+    const steps = [
+      { text: `Start at ${start}`, dist: '0 m', icon: ArrowUp, colorClass: 'green' },
+    ];
 
-    if (source && destination) {
-      const startNode = getNearestNode(source.position);
-      const endNode = getNearestNode(destination.position);
-      if (startNode && endNode) {
-        const pathIds = findShortestPath(startNode.id, endNode.id);
-        if (pathIds && pathIds.length >= 2) {
-          for (let i = 0; i < pathIds.length - 1; i++) {
-            const fromNode = pathIds[i];
-            const toNode = pathIds[i+1];
-            const edge = roadEdges.find(e => (e.from === fromNode && e.to === toNode) || (e.from === toNode && e.to === fromNode));
-            if (edge) {
-              steps.push({
-                text: `Go toward road junction ${toNode}`,
-                dist: `${edge.distance} m`,
-                icon: CornerUpRight,
-                colorClass: 'green'
-              });
-            }
-          }
-        }
-      }
-    }
-
-    steps.push({
-      text: `Arrive at ${destination ? destination.name : 'CSE Block'}`,
-      dist: `${routeDistance} m total`,
-      icon: MapPin,
-      colorClass: 'blue'
+    namedRoute.steps.forEach((s, i) => {
+      const isLast = i === namedRoute.steps.length - 1;
+      steps.push({
+        text: isLast
+          ? `Arrive at ${s.to}`
+          : `Walk to ${s.to}`,
+        dist: `${s.distance} m`,
+        icon: isLast ? MapPin : CornerUpRight,
+        colorClass: isLast ? 'blue' : 'green',
+      });
     });
 
     return steps;
-  }, [source, destination, routeDistance]);
+  }, [namedRoute, source, destination, routeDistance]);
 
   return (
     <div className="rp-root">

@@ -1,110 +1,127 @@
 import { useEffect } from 'react';
-import { roadNodes, roadEdges } from '../components/CampusMap/campusData';
+import { landmarks, landmarkEdges } from '../components/CampusMap/campusData';
 
-function distance(p1, p2) {
+// ─── Euclidean distance between two SVG points ────────────────────────────────
+function pixelDist(p1, p2) {
   return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2));
 }
 
-export function getNearestNode(landmarkPosition) {
+// ─── Build adjacency map once (module-level, not per-render) ─────────────────
+function buildGraph() {
+  const graph = {};
+  for (const lm of landmarks) graph[lm.id] = {};
+  for (const edge of landmarkEdges) {
+    const { from, to, distance, label } = edge;
+    if (graph[from] !== undefined && graph[to] !== undefined) {
+      graph[from][to] = { distance, label };
+      graph[to][from] = { distance, label };
+    }
+  }
+  return graph;
+}
+const GRAPH = buildGraph();
+
+// ─── Nearest landmark to an [x, y] position ──────────────────────────────────
+export function getNearestLandmark(position) {
   let nearest = null;
   let minDist = Infinity;
-  for (const node of roadNodes) {
-    const dist = distance(landmarkPosition, node.position);
-    if (dist < minDist) {
-      minDist = dist;
-      nearest = node;
-    }
+  for (const lm of landmarks) {
+    const d = pixelDist(position, lm.position);
+    if (d < minDist) { minDist = d; nearest = lm; }
   }
   return nearest;
 }
 
-export function findShortestPath(startNodeId, endNodeId) {
-  const distances = {};
+/** Backward-compat alias (used by InteractiveCampusMap) */
+export function getNearestNode(position) {
+  return getNearestLandmark(position);
+}
+
+// ─── Dijkstra on landmark graph — returns ordered array of landmark IDs ───────
+export function findShortestPath(startId, endId) {
+  const dist     = {};
   const previous = {};
   const unvisited = new Set();
 
-  const graph = {};
-  roadNodes.forEach(node => {
-    graph[node.id] = {};
-    distances[node.id] = Infinity;
-    unvisited.add(node.id);
-  });
-
-  roadEdges.forEach(edge => {
-    if (graph[edge.from] && graph[edge.to]) {
-      const weight = edge.distance / (edge.width / 5);
-      graph[edge.from][edge.to] = { dist: edge.distance, weight, width: edge.width };
-      graph[edge.to][edge.from] = { dist: edge.distance, weight, width: edge.width };
-    }
-  });
-
-  distances[startNodeId] = 0;
+  for (const lm of landmarks) {
+    dist[lm.id] = Infinity;
+    unvisited.add(lm.id);
+  }
+  dist[startId] = 0;
 
   while (unvisited.size > 0) {
-    let currNode = null;
-    let minD = Infinity;
-    for (const node of unvisited) {
-      if (distances[node] < minD) {
-        minD = distances[node];
-        currNode = node;
-      }
+    // Pick unvisited node with smallest tentative distance
+    let curr = null, minD = Infinity;
+    for (const id of unvisited) {
+      if (dist[id] < minD) { minD = dist[id]; curr = id; }
     }
+    if (curr === null || curr === endId) break;
+    unvisited.delete(curr);
 
-    if (currNode === null) break;
-    if (currNode === endNodeId) break;
-
-    unvisited.delete(currNode);
-
-    for (const neighbor in graph[currNode]) {
-      if (unvisited.has(neighbor)) {
-        const alt = distances[currNode] + graph[currNode][neighbor].weight;
-        if (alt < distances[neighbor]) {
-          distances[neighbor] = alt;
-          previous[neighbor] = currNode;
-        }
+    for (const neighborId in GRAPH[curr]) {
+      const nId = Number(neighborId);
+      if (!unvisited.has(nId)) continue;
+      const alt = dist[curr] + GRAPH[curr][nId].distance;
+      if (alt < dist[nId]) {
+        dist[nId] = alt;
+        previous[nId] = curr;
       }
     }
   }
 
+  // Reconstruct path
   const path = [];
-  let u = endNodeId;
-  if (previous[u] !== undefined || u === startNodeId) {
-    while (u !== undefined) {
-      path.unshift(u);
-      u = previous[u];
-    }
+  let u = endId;
+  while (u !== undefined) {
+    path.unshift(u);
+    u = previous[u];
   }
-  return path;
+  return path.length > 1 || path[0] === startId ? path : [];
 }
 
-// SVG-based route hook (no Leaflet) — computes steps from road graph
+// ─── Build named step-by-step instructions ───────────────────────────────────
+// Returns { steps: [{from, to, distance, label}], totalDistance }
+export function getNamedRouteSteps(sourceId, destinationId) {
+  const path = findShortestPath(sourceId, destinationId);
+  if (!path || path.length < 2) return null;
+
+  const lmMap = {};
+  for (const lm of landmarks) lmMap[lm.id] = lm;
+
+  const steps = [];
+  let totalDistance = 0;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    const fromId = path[i];
+    const toId   = path[i + 1];
+    const edge   = GRAPH[fromId]?.[toId];
+    if (!edge) continue;
+    totalDistance += edge.distance;
+    steps.push({
+      from:     lmMap[fromId]?.name  || `Node ${fromId}`,
+      to:       lmMap[toId]?.name    || `Node ${toId}`,
+      distance: edge.distance,
+      label:    edge.label,
+    });
+  }
+
+  return { steps, totalDistance };
+}
+
+// ─── React hook (used by LiveNavigationPage) ─────────────────────────────────
 export function useCampusRoute(map, source, destination, onStepsReady) {
   useEffect(() => {
     if (!source || !destination) return;
 
-    const startNode = getNearestNode(source.position);
-    const endNode   = getNearestNode(destination.position);
+    const result = getNamedRouteSteps(source.id, destination.id);
+    if (!result) return;
 
-    if (startNode && endNode) {
-      const pathIds = findShortestPath(startNode.id, endNode.id);
-
-      const steps = [`Start at ${source.name}`];
-      let totalDist = 0;
-
-      for (let i = 0; i < pathIds.length - 1; i++) {
-        const from = pathIds[i];
-        const to   = pathIds[i + 1];
-        const edge = roadEdges.find(
-          e => (e.from === from && e.to === to) || (e.from === to && e.to === from)
-        );
-        if (edge) {
-          totalDist += edge.distance;
-          steps.push(`Continue via road node ${to} (${edge.distance}m)`);
-        }
-      }
-
-      steps.push(`Arrive at ${destination.name} — total ~${totalDist}m`);
-      onStepsReady(steps);
-    }
+    const { steps, totalDistance } = result;
+    const textSteps = [
+      `Start at ${source.name}`,
+      ...steps.map(s => `Walk to ${s.to} via ${s.label} — ${s.distance} m`),
+      `Arrive at ${destination.name} — total ~${totalDistance} m`,
+    ];
+    onStepsReady(textSteps);
   }, [source, destination, onStepsReady]);
 }
