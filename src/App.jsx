@@ -17,7 +17,7 @@ function App() {
         <Route path="/" element={<LandingWelcomePage />} />
         <Route path="/source" element={<SourceSelectionPage />} />
         <Route path="/destination" element={<DestinationSelectionPage />} />
-        <Route path="/preview" element={<CampusMap />} />
+        <Route path="/preview" element={<RoutePreviewPage />} />
         <Route path="/navigate" element={<LiveNavigationPage />} />
         <Route path="/reached" element={<DestinationReachedPage />} />
       </Routes>
