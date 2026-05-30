@@ -36,7 +36,9 @@ const CHECKPOINTS = [
 export default function LiveNavigationPage() {
   const navigate = useNavigate();
 
-  const [theme,           setTheme]           = useState('light');
+  const [theme,           setTheme]           = useState(() => {
+    return localStorage.getItem('wayfinder-theme') || 'light';
+  });
   const [progress,        setProgress]        = useState(20);
   const [showAbortConfirm,setShowAbortConfirm]= useState(false);
   const [instrIdx,        setInstrIdx]        = useState(0);
@@ -81,9 +83,11 @@ export default function LiveNavigationPage() {
     }, 1500);
   };
 
-  /* Sync body dark class */
+  /* Sync body/html dark class */
   useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
     document.body.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('wayfinder-theme', theme);
   }, [theme]);
 
   /* Simulate progress (faster for demonstration/testing) */

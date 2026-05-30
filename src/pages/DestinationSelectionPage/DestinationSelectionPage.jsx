@@ -89,13 +89,17 @@ function ProgressSteps() {
 /* ── Main Page Component ────────────────────────────────── */
 function DestinationSelectionPage() {
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem('wayfinder-theme') === 'dark';
+  });
   const [selectedId, setSelectedId] = useState(null);
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
+    document.body.classList.toggle('dark', isDark);
+    localStorage.setItem('wayfinder-theme', isDark ? 'dark' : 'light');
   }, [isDark]);
 
   useEffect(() => {

@@ -131,13 +131,17 @@ function CampusMap({ selectedName, onSelectSource }) {
 
 function SourceSelectionPage() {
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem('wayfinder-theme') === 'dark';
+  });
   const [selectedId, setSelectedId] = useState('1'); // Node 1 = Main Entrance Gate
   const [query, setQuery] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
+    document.body.classList.toggle('dark', isDark);
+    localStorage.setItem('wayfinder-theme', isDark ? 'dark' : 'light');
   }, [isDark]);
 
   useEffect(() => {

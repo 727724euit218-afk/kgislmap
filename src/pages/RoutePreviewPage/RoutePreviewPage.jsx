@@ -14,10 +14,13 @@ import {
   CornerUpRight,
   Edit2,
   Navigation,
-  Check
+  Check,
+  Sun,
+  Moon
 } from 'lucide-react';
 import './RoutePreviewPage.css';
 import InteractiveCampusMap from '../../components/map/InteractiveCampusMap';
+import { landmarks } from '../../components/CampusMap/campusData';
 
 /* ── Animation variants ─────────────────────────────────── */
 const fadeUp = {
@@ -55,9 +58,33 @@ function ProgressSteps() {
 export default function RoutePreviewPage() {
   const navigate = useNavigate();
   const [navType, setNavType] = useState('staircase'); // 'staircase' or 'lift'
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('wayfinder-theme') || 'light';
+  });
+  const [source, setSource] = useState(null);
+  const [destination, setDestination] = useState(null);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.body.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('wayfinder-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     document.body.style.overflow = 'auto';
+
+    const savedSource = localStorage.getItem('wayfinder-source');
+    const savedDest = localStorage.getItem('wayfinder-destination');
+
+    if (savedSource) {
+      const s = landmarks.find(l => l.name === savedSource);
+      if (s) setSource(s);
+    }
+    if (savedDest) {
+      const d = landmarks.find(l => l.name === savedDest);
+      if (d) setDestination(d);
+    }
+
     return () => { document.body.style.overflow = ''; };
   }, []);
 
@@ -84,7 +111,10 @@ export default function RoutePreviewPage() {
           </div>
         </div>
 
-        <div className="rp-nav-actions">
+        <div className="rp-nav-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="rp-icon-btn" type="button" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')} aria-label="Toggle theme">
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
           <button className="rp-icon-btn" type="button" aria-label="Open menu">
             <Menu size={15} />
           </button>
@@ -107,7 +137,7 @@ export default function RoutePreviewPage() {
             <div className="rp-loc-icon source"><MapPin size={18} /></div>
             <div className="rp-loc-info">
               <span className="rp-loc-label">From</span>
-              <span className="rp-loc-name">Main Entrance Gate</span>
+              <span className="rp-loc-name">{source ? source.name : 'Main Entrance Gate'}</span>
               <span className="rp-loc-meta">KGiSL Campus</span>
             </div>
           </div>
@@ -118,7 +148,7 @@ export default function RoutePreviewPage() {
             <div className="rp-loc-icon dest"><MapPin size={18} /></div>
             <div className="rp-loc-info">
               <span className="rp-loc-label">To</span>
-              <span className="rp-loc-name">CSE Block</span>
+              <span className="rp-loc-name">{destination ? destination.name : 'CSE Block'}</span>
               <span className="rp-loc-meta">KGiSL Campus</span>
             </div>
           </div>
@@ -129,22 +159,22 @@ export default function RoutePreviewPage() {
           <div className="rp-metric">
             <div className="rp-metric-icon" style={{ color: '#22c55e', background: '#dcfce7' }}><Clock size={16} /></div>
             <span className="rp-metric-label">Estimated Time</span>
-            <span className="rp-metric-val">5 min</span>
+            <span className="rp-metric-val">3 min</span>
           </div>
           <div className="rp-metric">
             <div className="rp-metric-icon" style={{ color: '#3b82f6', background: '#dbeafe' }}><Compass size={16} /></div>
             <span className="rp-metric-label">Distance</span>
-            <span className="rp-metric-val">350 m</span>
+            <span className="rp-metric-val">240 m</span>
           </div>
           <div className="rp-metric">
             <div className="rp-metric-icon" style={{ color: '#a855f7', background: '#f3e8ff' }}><Building2 size={16} /></div>
             <span className="rp-metric-label">Route Type</span>
-            <span className="rp-metric-val">Indoor</span>
+            <span className="rp-metric-val">Outdoor</span>
           </div>
           <div className="rp-metric">
             <div className="rp-metric-icon" style={{ color: '#f97316', background: '#ffedd5' }}><ArrowUpDown size={16} /></div>
             <span className="rp-metric-label">Floors to Cross</span>
-            <span className="rp-metric-val">2</span>
+            <span className="rp-metric-val">0</span>
           </div>
         </motion.div>
 
@@ -152,10 +182,16 @@ export default function RoutePreviewPage() {
         <motion.div className="rp-section" variants={fadeUp} custom={4} initial="hidden" animate="visible">
           <div className="rp-section-header">
             <h3>Route Map (2D View)</h3>
-            <span className="rp-tag rp-tag-orange"><ArrowUpDown size={12} /> Staircase Route</span>
+            <span className="rp-tag rp-tag-orange"><ArrowUpDown size={12} /> Standard Route</span>
           </div>
           <div className="rp-map-container" style={{ padding: 0, overflow: 'hidden', borderRadius: '1.25rem', border: 'none' }}>
-            <InteractiveCampusMap theme="light" progress={0} />
+            <InteractiveCampusMap
+              theme={theme}
+              progress={0}
+              showFullRoute={true}
+              source={source}
+              destination={destination}
+            />
           </div>
         </motion.div>
 
@@ -167,23 +203,13 @@ export default function RoutePreviewPage() {
           <div className="rp-details-list">
             <div className="rp-detail-item">
               <div className="rp-detail-icon"><ArrowUp size={16} /></div>
-              <span className="rp-detail-text">Go straight from Main Entrance Gate</span>
-              <span className="rp-detail-dist">120 m</span>
-            </div>
-            <div className="rp-detail-item">
-              <div className="rp-detail-icon"><CornerUpRight size={16} /></div>
-              <span className="rp-detail-text">Turn right near the Admin Block</span>
-              <span className="rp-detail-dist">80 m</span>
-            </div>
-            <div className="rp-detail-item">
-              <div className="rp-detail-icon orange"><ArrowUpDown size={16} /></div>
-              <span className="rp-detail-text">Take the staircase to 2nd floor</span>
-              <span className="rp-detail-dist">1 floor</span>
+              <span className="rp-detail-text">Start at {source ? source.name : 'Main Entrance Gate'}</span>
+              <span className="rp-detail-dist">0 m</span>
             </div>
             <div className="rp-detail-item">
               <div className="rp-detail-icon blue"><MapPin size={16} /></div>
-              <span className="rp-detail-text">You will reach CSE Block</span>
-              <span className="rp-detail-dist">150 m</span>
+              <span className="rp-detail-text">Arrive at {destination ? destination.name : 'CSE Block'}</span>
+              <span className="rp-detail-dist">240 m</span>
             </div>
           </div>
         </motion.div>

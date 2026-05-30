@@ -79,12 +79,16 @@ function MiniMap() {
 }
 
 export default function LandingWelcomePage() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem('wayfinder-theme') === 'dark';
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
+    document.body.classList.toggle('dark', isDark);
+    localStorage.setItem('wayfinder-theme', isDark ? 'dark' : 'light');
   }, [isDark]);
 
   useEffect(() => {
