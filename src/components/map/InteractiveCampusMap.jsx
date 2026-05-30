@@ -4,15 +4,13 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import './InteractiveCampusMap.css';
 import campusMapImg from '../../assets/campus_map.jpg';
 import { getNearestNode, findShortestPath } from '../../hooks/useCampusRoute';
-import { roadNodes } from '../CampusMap/campusData';
+import { roadNodes, landmarks } from '../CampusMap/campusData';
 
-// Map Leaflet [lat, lng] (0-1500, 0-1000) to SVG [x, y] (0-800, 0-1130)
-const mapToSvg = ([lat, lng]) => ({
-  x: (lng / 1000) * 800,
-  y: 1130 - (lat / 1500) * 1130
-});
+// Coordinate system: positions in campusData are direct SVG [x, y] pixels.
+// viewBox is "0 0 855 1079" matching the campus map image dimensions.
+const mapToSvg = ([x, y]) => ({ x, y });
 
-// Traces segments and calculates user coordinate on path based on progress (0-100)
+// Traces segments and calculates user position on path based on progress (0-100)
 function getPositionAtProgress(points, progress) {
   if (!points || points.length === 0) return { x: 0, y: 0 };
   if (points.length === 1) return points[0];
@@ -20,10 +18,10 @@ function getPositionAtProgress(points, progress) {
   let totalLength = 0;
   const segments = [];
   for (let i = 0; i < points.length - 1; i++) {
-    const dx = points[i+1].x - points[i].x;
-    const dy = points[i+1].y - points[i].y;
-    const len = Math.sqrt(dx*dx + dy*dy);
-    segments.push({ from: points[i], to: points[i+1], length: len });
+    const dx = points[i + 1].x - points[i].x;
+    const dy = points[i + 1].y - points[i].y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    segments.push({ from: points[i], to: points[i + 1], length: len });
     totalLength += len;
   }
 
@@ -35,7 +33,7 @@ function getPositionAtProgress(points, progress) {
       const ratio = seg.length === 0 ? 0 : (targetLen - currentLen) / seg.length;
       return {
         x: seg.from.x + ratio * (seg.to.x - seg.from.x),
-        y: seg.from.y + ratio * (seg.to.y - seg.from.y)
+        y: seg.from.y + ratio * (seg.to.y - seg.from.y),
       };
     }
     currentLen += seg.length;
@@ -43,18 +41,34 @@ function getPositionAtProgress(points, progress) {
   return points[points.length - 1];
 }
 
-export default function InteractiveCampusMap({ theme = 'light', progress = 0, showFullRoute = true, source, destination }) {
+// Category badge colours (fill for the node circle)
+const CATEGORY_FILL = {
+  academic: '#1D3557',
+  hostel:   '#457B9D',
+  facility: '#F4A261',
+  admin:    '#E63946',
+  medical:  '#2A9D8F',
+  entry:    '#16a34a',
+};
+
+export default function InteractiveCampusMap({
+  theme = 'light',
+  progress = 0,
+  showFullRoute = true,
+  source,
+  destination,
+}) {
   const isDark = theme === 'dark';
   const [calibrationPoints, setCalibrationPoints] = useState([]);
-  const [isInspectorMode, setIsInspectorMode] = useState(false); // Hidden by default
+  const [isInspectorMode, setIsInspectorMode] = useState(false);
 
   // Compute dynamic route points based on source and destination
   const routePoints = useMemo(() => {
     if (!source || !destination) return [];
     const startNode = getNearestNode(source.position);
-    const endNode = getNearestNode(destination.position);
+    const endNode   = getNearestNode(destination.position);
     if (!startNode || !endNode) return [];
-    
+
     const pathIds = findShortestPath(startNode.id, endNode.id);
     return [
       mapToSvg(source.position),
@@ -62,26 +76,29 @@ export default function InteractiveCampusMap({ theme = 'light', progress = 0, sh
         const node = roadNodes.find(n => n.id === id);
         return mapToSvg(node.position);
       }),
-      mapToSvg(destination.position)
+      mapToSvg(destination.position),
     ];
   }, [source, destination]);
 
-  // Get user coordinates dynamically
-  const userPos = useMemo(() => getPositionAtProgress(routePoints, progress), [routePoints, progress]);
+  const userPos = useMemo(
+    () => getPositionAtProgress(routePoints, progress),
+    [routePoints, progress]
+  );
 
-  // Construct SVG path string for the route
   const routePathD = useMemo(() => {
     if (routePoints.length === 0) return '';
-    return routePoints.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`).join(' ');
+    return routePoints
+      .map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`)
+      .join(' ');
   }, [routePoints]);
 
   const handleMapClick = (e) => {
     if (!isInspectorMode) return;
     const svg = e.currentTarget;
-    const pt = svg.createSVGPoint();
+    const pt  = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
-    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const svgP   = pt.matrixTransform(svg.getScreenCTM().inverse());
     const coords = { x: Math.round(svgP.x), y: Math.round(svgP.y) };
     setCalibrationPoints(prev => [...prev, coords]);
   };
@@ -91,46 +108,91 @@ export default function InteractiveCampusMap({ theme = 'light', progress = 0, sh
       <div className="icm-card">
         <TransformWrapper
           initialScale={1}
-          minScale={0.5}
-          maxScale={4}
+          minScale={0.4}
+          maxScale={5}
           centerOnInit={true}
           wheel={{ step: 0.1 }}
         >
-          <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }}>
+          <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
             <svg
-              viewBox="0 0 800 1130"
+              viewBox="0 0 855 1079"
               className={`icm-svg ${isInspectorMode ? 'inspector-mode' : ''}`}
               xmlns="http://www.w3.org/2000/svg"
               onClick={handleMapClick}
-              style={{ width: "100%", height: "100%", cursor: isInspectorMode ? "crosshair" : "grab" }}
+              style={{
+                width: '100%',
+                height: '100%',
+                cursor: isInspectorMode ? 'crosshair' : 'grab',
+              }}
             >
-              {/* Real Map Image */}
-              <image 
-                href={campusMapImg} 
-                x="0" 
-                y="0" 
-                width="800" 
-                height="1130" 
-                preserveAspectRatio="xMidYMid slice" 
+              {/* ── Campus Map Image ── */}
+              <image
+                href={campusMapImg}
+                x="0"
+                y="0"
+                width="855"
+                height="1079"
+                preserveAspectRatio="xMidYMid meet"
                 className="icm-bg-image"
               />
-              
-              {/* Dark mode overlay for better contrast over bright maps */}
-              {isDark && <rect x="0" y="0" width="800" height="1130" fill="rgba(6, 13, 20, 0.4)" style={{ pointerEvents: 'none' }} />}
+
+              {/* Dark-mode overlay */}
+              {isDark && (
+                <rect
+                  x="0" y="0" width="855" height="1079"
+                  fill="rgba(6,13,20,0.45)"
+                  style={{ pointerEvents: 'none' }}
+                />
+              )}
+
+              {/* ── Numbered Node Badges ── */}
+              {landmarks.map(lm => {
+                const { x, y } = mapToSvg(lm.position);
+                const fill = CATEGORY_FILL[lm.category] || '#c0392b';
+                const isSource = source && source.id === lm.id;
+                const isDest   = destination && destination.id === lm.id;
+                const highlight = isSource || isDest;
+                return (
+                  <g key={lm.id} transform={`translate(${x},${y})`} style={{ pointerEvents: 'none' }}>
+                    {highlight && (
+                      <circle
+                        r="16"
+                        fill={isSource ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.25)'}
+                        className="icm-marker-pulse"
+                      />
+                    )}
+                    <circle
+                      r="11"
+                      fill={highlight ? (isSource ? '#22c55e' : '#ef4444') : fill}
+                      stroke="#ffffff"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fill="#ffffff"
+                      fontSize="8"
+                      fontWeight="800"
+                      fontFamily="Inter, system-ui, sans-serif"
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >
+                      {lm.id}
+                    </text>
+                  </g>
+                );
+              })}
 
               {/* ── Navigation Route Overlay ── */}
               {showFullRoute && routePathD && (
                 <>
-                  {/* Backing path glow */}
                   <path
                     d={routePathD}
                     className="icm-route-glow"
                     fill="none"
-                    strokeWidth="6"
+                    strokeWidth="7"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
-                  {/* Core animated route path */}
                   <path
                     d={routePathD}
                     className="icm-route-path"
@@ -142,16 +204,17 @@ export default function InteractiveCampusMap({ theme = 'light', progress = 0, sh
                 </>
               )}
 
-              {/* ── Markers ── */}
+              {/* ── Source Marker ── */}
               {source && (
-                <g transform={`translate(${mapToSvg(source.position).x}, ${mapToSvg(source.position).y})`}>
-                  <circle cx="0" cy="0" r="14" fill="rgba(34, 197, 94, 0.2)" className="icm-marker-pulse" />
-                  <circle cx="0" cy="0" r="6" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
+                <g transform={`translate(${mapToSvg(source.position).x},${mapToSvg(source.position).y})`}>
+                  <circle cx="0" cy="0" r="16" fill="rgba(34,197,94,0.2)" className="icm-marker-pulse" />
+                  <circle cx="0" cy="0" r="7" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
                 </g>
               )}
 
+              {/* ── Destination Marker ── */}
               {destination && (
-                <g transform={`translate(${mapToSvg(destination.position).x}, ${mapToSvg(destination.position).y - 12})`}>
+                <g transform={`translate(${mapToSvg(destination.position).x},${mapToSvg(destination.position).y - 14})`}>
                   <motion.g
                     animate={{ y: [0, -6, 0] }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
@@ -167,61 +230,64 @@ export default function InteractiveCampusMap({ theme = 'light', progress = 0, sh
                 </g>
               )}
 
-              {/* Active User Marker */}
+              {/* ── User Position Marker ── */}
               {routePoints.length > 0 && (
-                <g transform={`translate(${userPos.x}, ${userPos.y})`}>
-                  <circle cx="0" cy="0" r="18" fill="rgba(59, 130, 246, 0.25)" className="icm-user-pulse" />
+                <g transform={`translate(${userPos.x},${userPos.y})`}>
+                  <circle cx="0" cy="0" r="18" fill="rgba(59,130,246,0.25)" className="icm-user-pulse" />
                   <circle cx="0" cy="0" r="8" fill="#3b82f6" stroke="#fff" strokeWidth="2" />
                   <circle cx="0" cy="0" r="3" fill="#fff" />
                 </g>
               )}
-              
-            {/* Calibration Click Indicator */}
-            {isInspectorMode && calibrationPoints.map((pt, i) => (
-               <g key={i} transform={`translate(${pt.x}, ${pt.y})`}>
+
+              {/* ── Inspector / Calibration Overlay ── */}
+              {isInspectorMode && calibrationPoints.map((pt, i) => (
+                <g key={i} transform={`translate(${pt.x},${pt.y})`}>
                   <circle cx="0" cy="0" r="10" fill="none" stroke="#f59e0b" strokeWidth="2" />
-                  <text x="12" y="4" fill="#f59e0b" fontSize="12" fontWeight="bold">{i}</text>
-               </g>
-            ))}
-            {/* Draw lines between calibration points to visualize roads */}
-            {isInspectorMode && calibrationPoints.length > 1 && (
-               <path
+                  <text x="12" y="4" fill="#f59e0b" fontSize="11" fontWeight="bold">{i}</text>
+                </g>
+              ))}
+              {isInspectorMode && calibrationPoints.length > 1 && (
+                <path
                   d={`M ${calibrationPoints.map(p => `${p.x} ${p.y}`).join(' L ')}`}
                   fill="none"
                   stroke="#f59e0b"
                   strokeWidth="2"
                   strokeDasharray="4 4"
-               />
-            )}
-          </svg>
-        </TransformComponent>
-      </TransformWrapper>
-      
-      {/* Enhanced Coordinate Inspector Overlay */}
-      {isInspectorMode && (
-        <div className="icm-inspector-tooltip" style={{ right: '10px', left: 'auto', bottom: '10px', top: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', width: '300px' }}>
-          <strong>Calibration Mode</strong>
-          <span>Points Recorded: {calibrationPoints.length}</span>
-          <textarea 
-            readOnly 
-            value={JSON.stringify(calibrationPoints)} 
-            style={{ width: '100%', height: '80px', fontSize: '10px', color: '#000', padding: '4px', borderRadius: '4px' }}
-            onClick={(e) => e.target.select()}
-          />
-          <div style={{ display: 'flex', gap: '5px' }}>
-            <button onClick={() => {
-              try {
-                navigator.clipboard.writeText(JSON.stringify(calibrationPoints));
-                alert('Copied JSON to clipboard!');
-              } catch (err) {
-                alert('Clipboard copy failed. Please manually copy from the text box above.');
-              }
-            }} style={{ flex: 1, padding: '4px 8px', cursor: 'pointer', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px' }}>Copy JSON</button>
-            <button onClick={() => setCalibrationPoints([])} style={{ padding: '4px 8px', cursor: 'pointer', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px' }}>Clear</button>
-          </div>
-        </div>
-      )}
+                />
+              )}
+            </svg>
+          </TransformComponent>
+        </TransformWrapper>
 
+        {/* Inspector Panel */}
+        {isInspectorMode && (
+          <div
+            className="icm-inspector-tooltip"
+            style={{ right: '10px', left: 'auto', bottom: '10px', top: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', width: '300px' }}
+          >
+            <strong>Calibration Mode</strong>
+            <span>Points Recorded: {calibrationPoints.length}</span>
+            <textarea
+              readOnly
+              value={JSON.stringify(calibrationPoints)}
+              style={{ width: '100%', height: '80px', fontSize: '10px', color: '#000', padding: '4px', borderRadius: '4px' }}
+              onClick={e => e.target.select()}
+            />
+            <div style={{ display: 'flex', gap: '5px' }}>
+              <button
+                onClick={() => {
+                  try { navigator.clipboard.writeText(JSON.stringify(calibrationPoints)); alert('Copied!'); }
+                  catch { alert('Copy failed – copy manually from box above.'); }
+                }}
+                style={{ flex: 1, padding: '4px 8px', cursor: 'pointer', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px' }}
+              >Copy JSON</button>
+              <button
+                onClick={() => setCalibrationPoints([])}
+                style={{ padding: '4px 8px', cursor: 'pointer', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px' }}
+              >Clear</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

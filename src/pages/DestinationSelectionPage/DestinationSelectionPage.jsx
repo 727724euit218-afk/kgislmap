@@ -7,11 +7,8 @@ import {
   Building2,
   Check,
   Compass,
-  FlaskConical,
-  GraduationCap,
-  Hotel,
-  Laptop,
-  Library,
+  Heart,
+  Home,
   MapPin,
   Menu,
   Moon,
@@ -20,11 +17,12 @@ import {
   Sun,
   TreePine,
   Utensils,
-  Calendar,
   LayoutGrid,
+  Zap,
 } from 'lucide-react';
 import BorderGlow from '../../components/shared/BorderGlow';
 import './DestinationSelectionPage.css';
+import { landmarks } from '../../components/CampusMap/campusData';
 
 /* ── Animation variants ─────────────────────────────────── */
 const fadeUp = {
@@ -36,27 +34,33 @@ const fadeUp = {
   }),
 };
 
-/* ── Destination data ───────────────────────────────────── */
-const destinations = [
-  { id: 'admin',       name: 'Admin Block',      meta: 'Main Building • 1st Floor',             icon: Building2,    category: 'academic' },
-  { id: 'library',     name: 'Library',           meta: 'Main Building • Ground Floor',          icon: Library,      category: 'academic' },
-  { id: 'cse',         name: 'CSE Block',         meta: 'CSE Block • Various Floors',            icon: Laptop,       category: 'academic' },
-  { id: 'auditorium',  name: 'Auditorium',        meta: 'Seminar Block • Ground Floor',          icon: Calendar,     category: 'events' },
-  { id: 'ailab',       name: 'AI Lab 302',        meta: 'CSE Block • 3rd Floor',                 icon: FlaskConical, category: 'labs' },
-  { id: 'placement',   name: 'Placement Cell',    meta: 'Admin Block • Ground Floor',            icon: GraduationCap,category: 'offices' },
-  { id: 'seminar1',    name: 'Seminar Hall 1',    meta: 'Seminar Block • Ground Floor',          icon: Calendar,     category: 'events' },
-  { id: 'cafeteria',   name: 'Cafeteria',         meta: 'Food Court • Ground Floor',             icon: Utensils,     category: 'facilities' },
-  { id: 'hostel',      name: 'Hostel Block',      meta: 'Hostel Area • Various Floors',          icon: Hotel,        category: 'facilities' },
-  { id: 'sports',      name: 'Sports Complex',    meta: 'Sports Block • Ground Floor',           icon: TreePine,     category: 'facilities' },
-];
+/* ── Category icon map ─────────────────────────────────── */
+const categoryIconMap = {
+  academic: Building2,
+  hostel:   Home,
+  facility: Utensils,
+  admin:    Building2,
+  medical:  Heart,
+  entry:    MapPin,
+};
+
+/* ── Destinations derived from campusData landmarks ──────── */
+const destinations = landmarks.map(lm => ({
+  id:       String(lm.id),
+  name:     lm.name,
+  meta:     lm.description,
+  icon:     categoryIconMap[lm.category] || MapPin,
+  category: lm.category,
+  landmark: lm,
+}));
 
 const categories = [
-  { id: 'all',        label: 'All',        icon: LayoutGrid },
-  { id: 'academic',   label: 'Academic',   icon: GraduationCap },
-  { id: 'labs',       label: 'Labs',       icon: FlaskConical },
-  { id: 'offices',    label: 'Offices',    icon: Building2 },
-  { id: 'events',     label: 'Events',     icon: Calendar },
-  { id: 'facilities', label: 'Facilities', icon: TreePine },
+  { id: 'all',      label: 'All',       icon: LayoutGrid },
+  { id: 'academic', label: 'Academic',  icon: Building2 },
+  { id: 'hostel',   label: 'Hostels',   icon: Home },
+  { id: 'facility', label: 'Facilities',icon: Utensils },
+  { id: 'medical',  label: 'Medical',   icon: Heart },
+  { id: 'entry',    label: 'Entry',     icon: MapPin },
 ];
 
 /* ── Progress Steps Component ───────────────────────────── */
@@ -123,6 +127,7 @@ function DestinationSelectionPage() {
   const goToPreview = () => {
     if (!selectedDest) return;
     localStorage.setItem('wayfinder-destination', selectedDest.name);
+    localStorage.setItem('wayfinder-destination-id', selectedDest.id);
     navigate('/preview');
   };
 

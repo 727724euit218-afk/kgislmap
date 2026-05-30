@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import L from 'leaflet';
 import { roadNodes, roadEdges } from '../components/CampusMap/campusData';
 
 function distance(p1, p2) {
@@ -23,17 +22,17 @@ export function findShortestPath(startNodeId, endNodeId) {
   const distances = {};
   const previous = {};
   const unvisited = new Set();
-  
+
   const graph = {};
   roadNodes.forEach(node => {
     graph[node.id] = {};
     distances[node.id] = Infinity;
     unvisited.add(node.id);
   });
-  
+
   roadEdges.forEach(edge => {
     if (graph[edge.from] && graph[edge.to]) {
-      const weight = edge.distance / (edge.width / 5); // Prefer wider roads
+      const weight = edge.distance / (edge.width / 5);
       graph[edge.from][edge.to] = { dist: edge.distance, weight, width: edge.width };
       graph[edge.to][edge.from] = { dist: edge.distance, weight, width: edge.width };
     }
@@ -50,12 +49,12 @@ export function findShortestPath(startNodeId, endNodeId) {
         currNode = node;
       }
     }
-    
+
     if (currNode === null) break;
     if (currNode === endNodeId) break;
-    
+
     unvisited.delete(currNode);
-    
+
     for (const neighbor in graph[currNode]) {
       if (unvisited.has(neighbor)) {
         const alt = distances[currNode] + graph[currNode][neighbor].weight;
@@ -66,7 +65,7 @@ export function findShortestPath(startNodeId, endNodeId) {
       }
     }
   }
-  
+
   const path = [];
   let u = endNodeId;
   if (previous[u] !== undefined || u === startNodeId) {
@@ -78,50 +77,34 @@ export function findShortestPath(startNodeId, endNodeId) {
   return path;
 }
 
+// SVG-based route hook (no Leaflet) — computes steps from road graph
 export function useCampusRoute(map, source, destination, onStepsReady) {
   useEffect(() => {
-    if (!map || !source || !destination) return;
-
-    const routeLayerGroup = L.layerGroup().addTo(map);
+    if (!source || !destination) return;
 
     const startNode = getNearestNode(source.position);
-    const endNode = getNearestNode(destination.position);
+    const endNode   = getNearestNode(destination.position);
 
     if (startNode && endNode) {
       const pathIds = findShortestPath(startNode.id, endNode.id);
-      
-      const pathCoords = [
-        source.position, 
-        ...pathIds.map(id => roadNodes.find(n => n.id === id).position), 
-        destination.position
-      ];
 
-      L.polyline(pathCoords, {
-        color: '#E63946',
-        weight: 5,
-        dashArray: '8, 6',
-      }).addTo(routeLayerGroup);
-
-      const steps = [];
-      steps.push(`Start at ${source.name}`);
-      
+      const steps = [`Start at ${source.name}`];
       let totalDist = 0;
+
       for (let i = 0; i < pathIds.length - 1; i++) {
         const from = pathIds[i];
-        const to = pathIds[i+1];
-        const edge = roadEdges.find(e => (e.from === from && e.to === to) || (e.from === to && e.to === from));
+        const to   = pathIds[i + 1];
+        const edge = roadEdges.find(
+          e => (e.from === from && e.to === to) || (e.from === to && e.to === from)
+        );
         if (edge) {
           totalDist += edge.distance;
-          steps.push(`Continue to intersection ${to} via ${edge.width}m road (${edge.distance}m)`);
+          steps.push(`Continue via road node ${to} (${edge.distance}m)`);
         }
       }
-      
-      steps.push(`Arrive at ${destination.name}`);
+
+      steps.push(`Arrive at ${destination.name} — total ~${totalDist}m`);
       onStepsReady(steps);
     }
-
-    return () => {
-      map.removeLayer(routeLayerGroup);
-    };
-  }, [map, source, destination, onStepsReady]);
+  }, [source, destination, onStepsReady]);
 }

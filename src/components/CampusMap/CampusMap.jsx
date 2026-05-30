@@ -1,27 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { MapContainer, ImageOverlay, CircleMarker, Polyline, Tooltip } from 'react-leaflet';
-import './campusMap.css';
+import { useNavigate } from 'react-router-dom';
+import InteractiveCampusMap from '../map/InteractiveCampusMap';
 import { landmarks } from './campusData';
 import RoutePanel from './RoutePanel';
-import LandmarkMarker from './LandmarkMarker';
-import { useCampusRoute } from '../../hooks/useCampusRoute';
-
-const IMAGE_BOUNDS = [[0, 0], [1500, 1000]];
-const MAP_CENTER = [750, 500];
+import './campusMap.css';
 
 export default function CampusMap() {
-  const [map, setMap] = useState(null);
-  const [source, setSource] = useState(null);
+  const navigate = useNavigate();
+  const [source, setSource]           = useState(null);
   const [destination, setDestination] = useState(null);
-  const [routeSteps, setRouteSteps] = useState([]);
+  const [routeSteps, setRouteSteps]   = useState([]);
 
-  // Initialize from localStorage
+  // Load source + destination from localStorage
   useEffect(() => {
     const savedSource = localStorage.getItem('wayfinder-source');
-    const savedDest = localStorage.getItem('wayfinder-destination');
-    
+    const savedDest   = localStorage.getItem('wayfinder-destination');
+
     if (savedSource) {
       const s = landmarks.find(l => l.name === savedSource);
       if (s) setSource(s);
@@ -44,25 +38,8 @@ export default function CampusMap() {
     else localStorage.removeItem('wayfinder-destination');
   };
 
-  // Integrate routing
-  useCampusRoute(map, source, destination, setRouteSteps);
-
-  const [calibrationPoints, setCalibrationPoints] = useState([]);
-  
-  // Setup click logger for coordinate calibration
-  useEffect(() => {
-    if (map) {
-      const onClick = (e) => {
-        const pt = [Math.round(e.latlng.lat), Math.round(e.latlng.lng)];
-        setCalibrationPoints(prev => [...prev, pt]);
-      };
-      map.on('click', onClick);
-      return () => map.off('click', onClick);
-    }
-  }, [map]);
-
   return (
-    <div className="campus-map-wrapper" style={{ position: 'relative' }}>
+    <div className="campus-map-wrapper" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem' }}>
       <RoutePanel
         landmarks={landmarks}
         source={source}
@@ -71,62 +48,36 @@ export default function CampusMap() {
         onDestinationChange={handleDestinationChange}
         routeSteps={routeSteps}
       />
-      <div className="campus-map-container">
-        <MapContainer
-          center={MAP_CENTER}
-          zoom={0}
-          minZoom={-2}
-          maxZoom={2}
-          zoomSnap={0.5}
-          crs={L.CRS.Simple}
-          bounds={IMAGE_BOUNDS}
-          ref={setMap}
-          style={{ height: '100%', width: '100%', backgroundColor: '#060d14', cursor: 'crosshair' }}
-        >
-          <ImageOverlay
-            url="/map/kgisl_campus.jpg?v=2"
-            bounds={IMAGE_BOUNDS}
-          />
-          {landmarks.map(landmark => (
-            <LandmarkMarker key={landmark.id} landmark={landmark} />
-          ))}
-          
-          {/* Calibration Visualization */}
-          {calibrationPoints.length > 1 && (
-            <Polyline positions={calibrationPoints} color="#f59e0b" weight={3} dashArray="5, 5" />
-          )}
-          {calibrationPoints.map((pt, i) => (
-            <CircleMarker key={i} center={pt} radius={6} color="#f59e0b" fillColor="#f59e0b" fillOpacity={0.8}>
-              <Tooltip permanent direction="right" offset={[10, 0]} className="calibration-tooltip">
-                {i}
-              </Tooltip>
-            </CircleMarker>
-          ))}
-        </MapContainer>
-      </div>
 
-      {/* Calibration UI Overlay */}
-      <div style={{ position: 'absolute', right: 10, bottom: 10, zIndex: 1000, background: 'rgba(0,0,0,0.8)', padding: 10, borderRadius: 8, color: 'white', width: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <strong>Calibration Mode (Leaflet)</strong>
-        <span>Points: {calibrationPoints.length}</span>
-        <textarea 
-          readOnly 
-          value={JSON.stringify(calibrationPoints)} 
-          style={{ width: '100%', height: '80px', fontSize: '10px', color: '#000', padding: '4px', borderRadius: '4px' }}
-          onClick={(e) => e.target.select()}
-        />
-        <div style={{ display: 'flex', gap: 5 }}>
-          <button onClick={() => {
-            try {
-              navigator.clipboard.writeText(JSON.stringify(calibrationPoints));
-              alert('Copied!');
-            } catch (err) {
-              alert('Copy failed. Manually copy the text.');
-            }
-          }} style={{ flex: 1, padding: '4px 8px', background: '#3b82f6', border: 'none', color: 'white', cursor: 'pointer', borderRadius: '4px' }}>Copy JSON</button>
-          <button onClick={() => setCalibrationPoints([])} style={{ padding: '4px 8px', background: '#ef4444', border: 'none', color: 'white', cursor: 'pointer', borderRadius: '4px' }}>Clear</button>
-        </div>
-      </div>
+      {/* Interactive SVG Campus Map */}
+      <InteractiveCampusMap
+        theme="light"
+        progress={0}
+        showFullRoute={true}
+        source={source}
+        destination={destination}
+      />
+
+      {/* Navigate Button */}
+      {source && destination && (
+        <button
+          onClick={() => navigate('/navigate')}
+          style={{
+            margin: '0 auto',
+            padding: '0.75rem 2rem',
+            borderRadius: '0.75rem',
+            background: 'linear-gradient(135deg, #16a34a, #4ade80)',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: '1rem',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(22,163,74,0.3)',
+          }}
+        >
+          Start Navigation →
+        </button>
+      )}
     </div>
   );
 }

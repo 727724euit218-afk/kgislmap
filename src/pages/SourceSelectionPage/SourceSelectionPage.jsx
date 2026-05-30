@@ -7,7 +7,8 @@ import {
   Building2,
   Check,
   ChevronDown,
-  Library,
+  Heart,
+  Home,
   MapPin,
   Menu,
   Moon,
@@ -15,10 +16,11 @@ import {
   Search,
   Sparkles,
   Sun,
-  Trees,
+  Utensils,
 } from 'lucide-react';
 import BorderGlow from '../../components/shared/BorderGlow';
 import './SourceSelectionPage.css';
+import { landmarks } from '../../components/CampusMap/campusData';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -29,22 +31,24 @@ const fadeUp = {
   }),
 };
 
-const sources = [
-  { id: 'entrance', name: 'Main Entrance Gate', meta: 'Current Source', icon: MapPin, detected: true },
-  { id: 'admin', name: 'Admin Block', meta: 'Near reception', icon: Building2 },
-  { id: 'library', name: 'Library', meta: 'East wing', icon: Library },
-  { id: 'cse', name: 'CSE Block', meta: 'Academic block', icon: Building2 },
-  { id: 'auditorium', name: 'Auditorium', meta: 'Event hall', icon: Sparkles },
-  { id: 'hostel', name: 'Hostel', meta: 'Student residence', icon: Building2 },
-  { id: 'cafeteria', name: 'Cafeteria', meta: 'Food court', icon: Trees },
-];
+const categoryIconMap = {
+  academic: Building2,
+  hostel:   Home,
+  facility: Utensils,
+  admin:    Building2,
+  medical:  Heart,
+  entry:    MapPin,
+};
 
-const recent = [
-  { id: 'library', label: 'Library', visited: '2 days ago' },
-  { id: 'cse', label: 'CSE Block', visited: '1 week ago' },
-  { id: 'auditorium', label: 'Auditorium', visited: '3 days ago' },
-  { id: 'cafeteria', label: 'Cafeteria', visited: '2 weeks ago' },
-];
+// Derive sources from landmarks – mark Node 1 (Main Entrance Gate) as detected
+const sources = landmarks.map(lm => ({
+  id:       String(lm.id),
+  name:     lm.name,
+  meta:     lm.description,
+  icon:     categoryIconMap[lm.category] || MapPin,
+  detected: lm.id === 1,
+  landmark: lm,
+}));
 
 function ProgressSteps() {
   const steps = ['Source', 'Destination', 'Preview', 'Navigate', 'Arrived'];
@@ -128,7 +132,7 @@ function CampusMap({ selectedName, onSelectSource }) {
 function SourceSelectionPage() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(false);
-  const [selectedId, setSelectedId] = useState('entrance');
+  const [selectedId, setSelectedId] = useState('1'); // Node 1 = Main Entrance Gate
   const [query, setQuery] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -159,6 +163,7 @@ function SourceSelectionPage() {
 
   const continueToDestination = () => {
     localStorage.setItem('wayfinder-source', selectedSource.name);
+    localStorage.setItem('wayfinder-source-id', selectedSource.id);
     navigate('/destination');
   };
 
@@ -311,10 +316,10 @@ function SourceSelectionPage() {
         <motion.section className="src-card src-recent-card" variants={fadeUp} custom={5} initial="hidden" animate="visible">
           <div className="src-section-title">
             <Navigation size={14} />
-            <strong>Recently Used Locations</strong>
+            <strong>Campus Locations</strong>
           </div>
           <div className="src-recent-list">
-            {recent.map((item, index) => (
+            {sources.slice(1, 5).map((item, index) => (
               <motion.button
                 key={item.id}
                 type="button"
@@ -326,8 +331,8 @@ function SourceSelectionPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.38 + index * 0.04 }}
               >
-                <span>{item.label}</span>
-                <small>Visited {item.visited}</small>
+                <span>{item.name}</span>
+                <small>{item.meta.slice(0, 40)}</small>
                 <ArrowRight size={13} />
               </motion.button>
             ))}

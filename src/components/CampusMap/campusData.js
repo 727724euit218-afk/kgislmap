@@ -1,122 +1,103 @@
+// ─── KGISL Campus Data ───────────────────────────────────────────────────────
+// Coordinate system: direct SVG [x, y] pixels, viewBox "0 0 855 1079"
+// Node IDs match exactly the numbers printed on the campus map image.
+// Nodes 2, 9, 17, 23–26 are not labeled on the map and are omitted.
+
 export const landmarks = [
-  { id: 1,  name: 'Main Entrance Gate',        position: [182, 542],  category: 'entry',    description: 'Primary entry/exit point from Thudiyalur–Saravanampatti Road', snapshot: { col: 0, row: 0 } },
-  { id: 2,  name: 'Admin Block',               position: [172, 434],  category: 'admin',    description: 'Administrative offices and management', snapshot: { col: 1, row: 0 } },
-  { id: 3,  name: 'KGISL',                     position: [274, 438],  category: 'academic', description: 'Main KGISL institution building', snapshot: { col: 2, row: 0 } },
-  { id: 4,  name: 'KGISL Parking',             position: [274, 390],  category: 'facility', description: 'Multiple parking zones across campus', snapshot: { col: 3, row: 0 } },
-  { id: 5,  name: 'Kite Academic Block & Lab', position: [344, 550],  category: 'academic', description: 'Academic classrooms and laboratory spaces', snapshot: { col: 4, row: 0 } },
-  { id: 6,  name: 'IT Tower',                  position: [364, 386],  category: 'academic', description: 'IT department tower building', snapshot: { col: 5, row: 0 } },
-  { id: 7,  name: 'Kite Cafeteria',            position: [416, 402],  category: 'facility', description: 'Student cafeteria and food court', snapshot: { col: 6, row: 0 } },
-  { id: 8,  name: 'Kite Gym & Volley Ball',    position: [492, 434],  category: 'facility', description: 'Gymnasium and volleyball courts', snapshot: { col: 0, row: 1 } },
-  { id: 9,  name: 'Gas Room',                  position: [590, 436],  category: 'facility', description: 'Gas supply room' },
-  { id: 10, name: 'GSS',                       position: [744, 430],  category: 'facility', description: 'General support services' },
-  { id: 11, name: 'Health Science Block',      position: [848, 434],  category: 'medical',  description: 'Health sciences department', snapshot: { col: 1, row: 1 } },
-  { id: 12, name: 'Nursing College',           position: [878, 254],  category: 'academic', description: 'Nursing college building with garden', snapshot: { col: 2, row: 1 } },
-  { id: 13, name: 'Nursing Hostel',            position: [997, 421],  category: 'hostel',   description: 'Hostel for nursing college students', snapshot: { col: 3, row: 1 } },
-  { id: 14, name: 'Boys Hostel (NMH)',         position: [1121, 263], category: 'hostel',   description: 'Boys hostel – NMH block' },
-  { id: 15, name: 'Open Auditorium',           position: [1195, 266], category: 'facility', description: 'Open-air auditorium for events', snapshot: { col: 4, row: 1 } },
-  { id: 16, name: 'Facilities Building',       position: [1177, 402], category: 'facility', description: 'Central facilities and support building' },
-  { id: 17, name: 'Vehicle Shed',              position: [1379, 315], category: 'facility', description: 'Vehicle parking shed' },
-  { id: 18, name: 'Pump Room',                 position: [1283, 509], category: 'facility', description: 'Water pump station' },
-  { id: 19, name: 'STP Area',                  position: [1120, 638], category: 'facility', description: 'Sewage treatment plant' },
-  { id: 20, name: 'Canteen',                   position: [1116, 735], category: 'facility', description: 'Main campus canteen', snapshot: { col: 5, row: 1 } },
-  { id: 21, name: 'Parking Shed',              position: [847, 666],  category: 'facility', description: 'Covered parking shed' },
-  { id: 22, name: 'Garden / Landscape',        position: [774, 714],  category: 'facility', description: 'Central garden and landscape area' },
-  { id: 23, name: 'Rain Water Harvesting Tank',position: [740, 655],  category: 'facility', description: 'Rainwater harvesting infrastructure' },
-  { id: 27, name: 'Transformers / Power House',position: [659, 822],  category: 'facility', description: 'Electrical transformer and power supply' },
-  { id: 28, name: 'Guest House',               position: [617, 929],  category: 'facility', description: 'Guest accommodation', snapshot: { col: 6, row: 1 } },
-  { id: 29, name: 'Ladies Hostel',             position: [526, 915],  category: 'hostel',   description: 'Ladies hostel block' },
-  { id: 30, name: 'Dining Hall',               position: [605, 703],  category: 'facility', description: 'Main student dining hall' },
-  { id: 31, name: 'Kitchen',                   position: [631, 652],  category: 'facility', description: 'Campus kitchen facility' },
-  { id: 32, name: 'Main Drinking Water Tank',  position: [484, 686],  category: 'facility', description: 'Primary campus water supply tank' },
-  { id: 33, name: 'EB Room',                   position: [424, 768],  category: 'facility', description: 'Electricity board room' },
-  { id: 34, name: 'Space for KG Design',       position: [327, 765],  category: 'facility', description: 'Reserved space for KG design project' },
-  { id: 35, name: 'IT Tower - 2 Parking',      position: [383, 649],  category: 'facility', description: 'Parking area for IT Tower 2' }
+  { id: 1,  name: 'Main Entrance Gate',        position: [430, 920],  category: 'entry',    description: 'Primary entry/exit point from Thudiyalur–Saravanampatti Road' },
+  { id: 3,  name: 'KGISL',                     position: [448, 795],  category: 'academic', description: 'Main KGISL institution building' },
+  { id: 4,  name: 'KGISL Parking',             position: [306, 472],  category: 'facility', description: 'Multiple parking zones across campus' },
+  { id: 5,  name: 'Kite Academic Block & Lab', position: [340, 555],  category: 'academic', description: 'Academic classrooms and laboratory spaces' },
+  { id: 6,  name: 'IT Tower',                  position: [362, 645],  category: 'academic', description: 'IT department tower building' },
+  { id: 7,  name: 'Kite Cafeteria',            position: [415, 625],  category: 'facility', description: 'Student cafeteria and food court' },
+  { id: 8,  name: 'Kite Gym & Volley Ball',    position: [492, 535],  category: 'facility', description: 'Gymnasium and volleyball courts' },
+  { id: 10, name: 'GSS',                       position: [600, 510],  category: 'facility', description: 'General support services' },
+  { id: 11, name: 'Health Science',            position: [645, 302],  category: 'medical',  description: 'Health sciences department' },
+  { id: 12, name: 'Nursing College',           position: [714, 575],  category: 'academic', description: 'Nursing college building with garden' },
+  { id: 13, name: 'Nursing Hostel',            position: [525, 297],  category: 'hostel',   description: 'Hostel for nursing college students' },
+  { id: 14, name: 'Boys Hostel (NMH)',         position: [372, 347],  category: 'hostel',   description: 'Boys hostel – NMH block' },
+  { id: 15, name: 'Open Auditorium',           position: [200, 458],  category: 'facility', description: 'Open-air auditorium for events' },
+  { id: 16, name: 'Facilities Building',       position: [555, 458],  category: 'facility', description: 'Central facilities and support building' },
+  { id: 18, name: 'Pump Room',                 position: [495, 638],  category: 'facility', description: 'Water pump station' },
+  { id: 19, name: 'STP Area',                  position: [175, 258],  category: 'facility', description: 'Sewage treatment plant area (blue structure)' },
+  { id: 20, name: 'Canteen Block',             position: [435, 157],  category: 'facility', description: 'Top campus canteen/block building' },
+  { id: 21, name: 'Parking Shed',              position: [278, 102],  category: 'facility', description: 'Covered parking shed (upper campus)' },
+  { id: 22, name: 'Ground',                    position: [313, 222],  category: 'facility', description: 'Sports ground / open ground area' },
+  { id: 27, name: 'Transformer',               position: [548, 778],  category: 'facility', description: 'Electrical transformer and power supply' },
+  { id: 28, name: 'Guest House',               position: [328, 745],  category: 'facility', description: 'Guest accommodation' },
+  { id: 29, name: 'Ladies Hostel',             position: [328, 800],  category: 'hostel',   description: 'Ladies hostel block' },
+  { id: 30, name: 'Dining Hall',               position: [305, 858],  category: 'facility', description: 'Main student dining hall' },
+  { id: 31, name: 'Kitchen',                   position: [358, 858],  category: 'facility', description: 'Campus kitchen facility' },
+  { id: 32, name: 'Main Drinking Water Tank',  position: [568, 752],  category: 'facility', description: 'Primary campus water supply tank' },
+  { id: 33, name: 'EB Room',                   position: [722, 595],  category: 'facility', description: 'Electricity board room' },
+  { id: 34, name: 'Space for KG Design',       position: [548, 838],  category: 'facility', description: 'Reserved space for KG design project' },
 ];
 
-// Grid-based road nodes mapping to the new image layout
+// ─── Road Network Nodes ───────────────────────────────────────────────────────
+// Internal routing waypoints along campus roads.
+// Positions are SVG [x, y] coordinates matching the viewBox "0 0 855 1079".
 export const roadNodes = [
-  { "id": "N1", "position": [137, 546] },
-  { "id": "N2", "position": [190, 491] },
-  { "id": "N3", "position": [194, 590] },
-  { "id": "N4", "position": [151, 618] },
-  { "id": "N5", "position": [528, 617] },
-  { "id": "N6", "position": [525, 499] },
-  { "id": "N7", "position": [552, 526] },
-  { "id": "N8", "position": [550, 570] },
-  { "id": "N9", "position": [617, 564] },
-  { "id": "N10", "position": [625, 403] },
-  { "id": "N11", "position": [762, 564] },
-  { "id": "N12", "position": [781, 310] },
-  { "id": "N13", "position": [929, 305] },
-  { "id": "N14", "position": [907, 555] },
-  { "id": "N15", "position": [954, 273] },
-  { "id": "N16", "position": [1039, 265] },
-  { "id": "N17", "position": [1057, 241] },
-  { "id": "N18", "position": [1047, 313] },
-  { "id": "N19", "position": [1003, 557] },
-  { "id": "N20", "position": [1039, 567] },
-  { "id": "N21", "position": [1294, 298] },
-  { "id": "N22", "position": [1317, 552] },
-  { "id": "N23", "position": [1164, 570] },
-  { "id": "N24", "position": [1161, 703] },
-  { "id": "N25", "position": [1174, 756] },
-  { "id": "N26", "position": [1300, 677] },
-  { "id": "N27", "position": [1087, 835] },
-  { "id": "N28", "position": [1029, 842] },
-  { "id": "N29", "position": [946, 875] },
-  { "id": "N30", "position": [942, 646] },
-  { "id": "N31", "position": [879, 579] },
-  { "id": "N32", "position": [880, 713] },
-  { "id": "N33", "position": [744, 740] },
-  { "id": "N34", "position": [761, 912] },
-  { "id": "N35", "position": [533, 728] },
-  { "id": "N36", "position": [507, 837] },
-  { "id": "N37", "position": [641, 734] },
-  { "id": "N38", "position": [463, 994] },
-  { "id": "N39", "position": [409, 714] },
-  { "id": "N40", "position": [508, 780] },
-  { "id": "N41", "position": [458, 498] },
-  { "id": "N42", "position": [658, 570] }
+  { id: 'R1',  position: [430, 952] },  // Entrance road (bottom)
+  { id: 'R2',  position: [430, 880] },  // Near flag / entrance gate
+  { id: 'R3',  position: [430, 810] },  // Near KGISL main building
+  { id: 'R4',  position: [430, 730] },  // Central main junction
+  { id: 'R5',  position: [338, 730] },  // Left branch – toward dining/hostel
+  { id: 'R6',  position: [560, 730] },  // Right branch – toward transformer
+  { id: 'R7',  position: [430, 665] },  // Upper-central junction
+  { id: 'R8',  position: [340, 620] },  // Left – IT Tower / Kite block
+  { id: 'R9',  position: [500, 660] },  // Right – pump room / cafeteria
+  { id: 'R10', position: [430, 575] },  // Middle junction
+  { id: 'R11', position: [310, 535] },  // Left – auditorium branch
+  { id: 'R12', position: [555, 535] },  // Right – facilities / GSS
+  { id: 'R13', position: [430, 455] },  // Upper junction
+  { id: 'R14', position: [310, 420] },  // Boys hostel road
+  { id: 'R15', position: [555, 420] },  // East road upper
+  { id: 'R16', position: [430, 360] },  // North junction
+  { id: 'R17', position: [540, 360] },  // Toward nursing hostel
+  { id: 'R18', position: [430, 265] },  // Far north road
+  { id: 'R19', position: [437, 185] },  // Top road
+  { id: 'R20', position: [640, 360] },  // East road – health science
+  { id: 'R21', position: [640, 500] },  // East road – GSS / nursing college
+  { id: 'R22', position: [640, 650] },  // East road lower
+  { id: 'R23', position: [205, 535] },  // Left road – auditorium area
 ];
 
+// ─── Road Edges ───────────────────────────────────────────────────────────────
 export const roadEdges = [
-  { "from": "N1", "to": "N2", "width": 8, "distance": 76 },
-  { "from": "N2", "to": "N3", "width": 8, "distance": 99 },
-  { "from": "N3", "to": "N4", "width": 8, "distance": 51 },
-  { "from": "N5", "to": "N6", "width": 8, "distance": 118 },
-  { "from": "N6", "to": "N7", "width": 8, "distance": 38 },
-  { "from": "N7", "to": "N8", "width": 8, "distance": 44 },
-  { "from": "N8", "to": "N9", "width": 8, "distance": 67 },
-  { "from": "N12", "to": "N13", "width": 8, "distance": 148 },
-  { "from": "N13", "to": "N15", "width": 8, "distance": 41 },
-  { "from": "N15", "to": "N16", "width": 8, "distance": 85 },
-  { "from": "N16", "to": "N17", "width": 8, "distance": 30 },
-  { "from": "N17", "to": "N18", "width": 8, "distance": 73 },
-  { "from": "N19", "to": "N20", "width": 8, "distance": 37 },
-  { "from": "N23", "to": "N24", "width": 8, "distance": 133 },
-  { "from": "N24", "to": "N25", "width": 8, "distance": 55 },
-  { "from": "N22", "to": "N26", "width": 8, "distance": 126 },
-  { "from": "N27", "to": "N28", "width": 8, "distance": 58 },
-  { "from": "N28", "to": "N29", "width": 8, "distance": 89 },
-  { "from": "N30", "to": "N31", "width": 8, "distance": 92 },
-  { "from": "N31", "to": "N32", "width": 8, "distance": 134 },
-  { "from": "N32", "to": "N33", "width": 8, "distance": 139 },
-  { "from": "N35", "to": "N36", "width": 8, "distance": 112 },
-  { "from": "N39", "to": "N35", "width": 8, "distance": 125 },
-  { "from": "N35", "to": "N40", "width": 8, "distance": 58 },
-  { "from": "N42", "to": "N11", "width": 8, "distance": 104 },
-  { "from": "N11", "to": "N14", "width": 8, "distance": 145 },
-  { "from": "N14", "to": "N19", "width": 8, "distance": 96 },
-  { "from": "N33", "to": "N37", "width": 8, "distance": 103 },
-  { "from": "N37", "to": "N35", "width": 8, "distance": 108 },
-  { "from": "N23", "to": "N20", "width": 8, "distance": 125 }
+  { from: 'R1',  to: 'R2',  width: 8, distance: 72  },
+  { from: 'R2',  to: 'R3',  width: 8, distance: 70  },
+  { from: 'R3',  to: 'R4',  width: 8, distance: 80  },
+  { from: 'R4',  to: 'R5',  width: 8, distance: 92  },
+  { from: 'R4',  to: 'R6',  width: 8, distance: 130 },
+  { from: 'R4',  to: 'R7',  width: 8, distance: 65  },
+  { from: 'R7',  to: 'R8',  width: 8, distance: 90  },
+  { from: 'R7',  to: 'R9',  width: 8, distance: 70  },
+  { from: 'R7',  to: 'R10', width: 8, distance: 90  },
+  { from: 'R10', to: 'R11', width: 8, distance: 120 },
+  { from: 'R10', to: 'R12', width: 8, distance: 125 },
+  { from: 'R10', to: 'R13', width: 8, distance: 120 },
+  { from: 'R11', to: 'R23', width: 8, distance: 105 },
+  { from: 'R13', to: 'R14', width: 8, distance: 120 },
+  { from: 'R13', to: 'R15', width: 8, distance: 125 },
+  { from: 'R13', to: 'R16', width: 8, distance: 95  },
+  { from: 'R15', to: 'R20', width: 8, distance: 90  },
+  { from: 'R16', to: 'R17', width: 8, distance: 110 },
+  { from: 'R16', to: 'R18', width: 8, distance: 95  },
+  { from: 'R18', to: 'R19', width: 8, distance: 80  },
+  { from: 'R20', to: 'R21', width: 8, distance: 140 },
+  { from: 'R21', to: 'R22', width: 8, distance: 150 },
+  { from: 'R5',  to: 'R8',  width: 8, distance: 110 },
+  { from: 'R6',  to: 'R9',  width: 8, distance: 70  },
+  { from: 'R12', to: 'R21', width: 8, distance: 110 },
+  { from: 'R17', to: 'R20', width: 8, distance: 100 },
 ];
 
+// ─── Category Colours ─────────────────────────────────────────────────────────
 export const categoryColors = {
-  academic:  '#1D3557',
-  hostel:    '#457B9D',
-  facility:  '#F4A261',
-  admin:     '#E63946',
-  medical:   '#2A9D8F',
-  entry:     '#264653',
+  academic: '#1D3557',
+  hostel:   '#457B9D',
+  facility: '#F4A261',
+  admin:    '#E63946',
+  medical:  '#2A9D8F',
+  entry:    '#264653',
 };
